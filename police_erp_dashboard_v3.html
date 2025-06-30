@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>กองบัญชาการตำรวจสอบสวนกลาง - Activities Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="https://cib.go.th/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #00264E;
+            color: white;
+            overflow: hidden;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        /* Fixed Logo */
+        .logo-container {
+            position: fixed;
+            top: 5px;
+            left: 5px;
+            z-index: 1000;
+            background: rgba(0, 38, 78, 0.9);
+            border: 2px solid #FFD300;
+            border-radius: 10px;
+            padding: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo-container img {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+
+        /* Top Right Panel */
+        .top-right-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-width: 420px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        .time-status-container {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .time-display, .status-display {
+            background: rgba(0, 38, 78, 0.25);
+            border: 2px solid #FFD300;
+            border-radius: 10px;
+            padding: 10px 15px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .time-display {
+            flex: 2;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .status-display {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .status-online {
+            color: #4CAF50;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Livestream Card */
+        .livestream-card {
+            background: rgba(0, 38, 78, 0.25);
+            border: 2px solid #FFD300;
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .livestream-card h3 {
+            color: #FFD300;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .livestream-video {
+            width: 100%;
+            height: 180px;
+            border-radius: 10px;
+            background: #333;
+            overflow: hidden;
+        }
+
+        .livestream-video iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+
+        /* Investigation Card */
+        .investigation-card {
+            background: rgba(0, 38, 78, 0.25);
+            border: 2px solid #FFD300;
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .investigation-card h3 {
+            color: #FFD300;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .chart-container {
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .chart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 211, 0, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #FFD300;
+        }
+
+        .chart-item .label {
+            font-size: 14px;
+        }
+
+        .chart-item .value {
+            font-weight: bold;
+            color: #FFD300;
+        }
+
+        /* Top Center Filter Buttons */
+        .filter-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 38, 78, 0.25);
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 2px solid #FFD300;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 1px solid #FFD300;
+            color: #FFD300;
+            padding: 8px 16px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: rgba(255, 211, 0, 0.2);
+            transform: scale(1.05);
+        }
+
+        .filter-btn.active {
+            background: #FFD300;
+            color: #00264E;
+            font-weight: bold;
+        }
+        .heatmap-card {
+            background: rgba(0, 38, 78, 0.25);
+            border: 2px solid #FFD300;
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .heatmap-card h3 {
+            color: #FFD300;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .heatmap-feed {
+            height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .heatmap-item {
+            padding: 8px 10px;
+            background: rgba(255, 211, 0, 0.1);
+            border-radius: 6px;
+            border-left: 3px solid #FFD300;
+            font-size: 12px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .heatmap-item .location {
+            color: #FFD300;
+            font-weight: bold;
+        }
+
+        .heatmap-item .case-type {
+            margin-top: 3px;
+            line-height: 1.3;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Pulse animations for heatmap circles - Updated */
+        @keyframes pulseWave {
+            0% { 
+                transform: scale(1); 
+                opacity: 0.8;
+                box-shadow: 0 0 0 0 currentColor;
+            }
+            50% { 
+                transform: scale(1.1); 
+                opacity: 0.6;
+                box-shadow: 0 0 0 10px rgba(255, 0, 0, 0.3);
+            }
+            100% { 
+                transform: scale(1); 
+                opacity: 0.8;
+                box-shadow: 0 0 0 20px rgba(255, 0, 0, 0);
+            }
+        }
+
+        @keyframes pulseWaveMedium {
+            0% { 
+                transform: scale(1); 
+                opacity: 0.7;
+                box-shadow: 0 0 0 0 currentColor;
+            }
+            50% { 
+                transform: scale(1.08); 
+                opacity: 0.5;
+                box-shadow: 0 0 0 8px rgba(255, 140, 0, 0.3);
+            }
+            100% { 
+                transform: scale(1); 
+                opacity: 0.7;
+                box-shadow: 0 0 0 15px rgba(255, 140, 0, 0);
+            }
+        }
+
+        @keyframes pulseWaveLow {
+            0% { 
+                transform: scale(1); 
+                opacity: 0.6;
+                box-shadow: 0 0 0 0 currentColor;
+            }
+            50% { 
+                transform: scale(1.05); 
+                opacity: 0.4;
+                box-shadow: 0 0 0 5px rgba(255, 215, 0, 0.3);
+            }
+            100% { 
+                transform: scale(1); 
+                opacity: 0.6;
+                box-shadow: 0 0 0 10px rgba(255, 215, 0, 0);
+            }
+        }
+        .operation-feed {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 400px;
+            height: 300px;
+            background: rgba(0, 38, 78, 0.25);
+            border: 2px solid #FFD300;
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .operation-feed h3 {
+            color: #FFD300;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .feed-content {
+            height: calc(100% - 40px);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .feed-item {
+            padding: 10px;
+            background: rgba(255, 211, 0, 0.1);
+            border-radius: 8px;
+            border-left: 4px solid #FFD300;
+            font-size: 12px;
+        }
+
+        .feed-item .time {
+            color: #FFD300;
+            font-weight: bold;
+        }
+
+        .feed-item .message {
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        /* Scrollbar styling */
+        .feed-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .feed-content::-webkit-scrollbar-track {
+            background: rgba(255, 211, 0, 0.1);
+            border-radius: 3px;
+        }
+
+        .feed-content::-webkit-scrollbar-thumb {
+            background: #FFD300;
+            border-radius: 3px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .top-right-panel {
+                min-width: 300px;
+            }
+            
+            .operation-feed {
+                width: 300px;
+                height: 200px;
+            }
+            
+            .latest-cases-card {
+                width: 300px;
+                height: 220px;
+            }
+            
+            .filter-container {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .filter-btn {
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+        }
+
+        /* Scrollbar styling for cases feed */
+        .cases-feed::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .cases-feed::-webkit-scrollbar-track {
+            background: rgba(255, 211, 0, 0.1);
+            border-radius: 2px;
+        }
+
+        .cases-feed::-webkit-scrollbar-thumb {
+            background: #FFD300;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <!-- Fixed Logo -->
+    <div class="logo-container">
+        <!-- <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMjgiIGZpbGw9IiNGRkQzMDAiIHN0cm9rZT0iIzAwMjY0RSIgc3Ryb2tlLXdpZHRoPSI0Ii8+Cjx0ZXh0IHg9IjMwIiB5PSIzNSIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iIzAwMjY0RSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+VFBJQzwvdGV4dD4KPC9zdmc+" alt="TPIC Logo"> -->
+        <img src="data:image/png;base64,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">
+    </div>
+
+    <!-- Top Center Filter Buttons -->
+    <div class="filter-container">
+        <button class="filter-btn active" data-filter="1h">1 ชั่วโมง</button>
+        <button class="filter-btn" data-filter="1d">1 วัน</button>
+        <button class="filter-btn" data-filter="1w">1 สัปดาห์</button>
+        <button class="filter-btn" data-filter="1m">1 เดือน</button>
+        <button class="filter-btn" data-filter="1y">1 ปี</button>
+    </div>
+
+    <!-- Latest Cases Card - Left Side -->
+    <div class="latest-cases-card">
+        <h3><i class="fas fa-gavel"></i> คดีล่าสุด</h3>
+        <div class="cases-feed" id="casesFeed">
+            <!-- Case items will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Top Right Panel -->
+    <div class="top-right-panel">
+        <!-- Time and Status -->
+        <div class="time-status-container">
+            <div class="time-display" id="currentTime">
+                กำลังโหลดเวลา...
+            </div>
+            <div class="status-display">
+                <div class="status-dot"></div>
+                <span class="status-online">ออนไลน์</span>
+            </div>
+        </div>
+
+        <!-- Livestream Card -->
+        <div class="livestream-card">
+            <h3><i class="fas fa-video"></i> การถ่ายทอดสด</h3>
+            <div class="livestream-video">
+                <iframe src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&mute=1&loop=1&playlist=jfKfPfyJRdk" 
+                        title="Live Stream" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen></iframe>
+            </div>
+        </div>
+
+        <!-- Investigation Card -->
+        <div class="investigation-card">
+            <h3><i class="fas fa-search"></i> สืบสวน/สอบสวน</h3>
+            <div class="chart-container">
+                <div class="chart-item">
+                    <span class="label">คดีใหม่วันนี้</span>
+                    <span class="value" id="newCases">24</span>
+                </div>
+                <div class="chart-item">
+                    <span class="label">คดีที่กำลังดำเนินการ</span>
+                    <span class="value" id="activeCases">156</span>
+                </div>
+                <div class="chart-item">
+                    <span class="label">หมายจับที่ออกแล้ว</span>
+                    <span class="value" id="warrants">89</span>
+                </div>
+                <div class="chart-item">
+                    <span class="label">คดีที่ปิดสำเร็จ</span>
+                    <span class="value" id="closedCases">342</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Operation Feed -->
+    <div class="operation-feed">
+        <h3><i class="fas fa-rss"></i> ข้อมูลปฏิบัติการ</h3>
+        <div class="feed-content" id="feedContent">
+            <!-- Feed items will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script>
+        // Initialize map focused on Thailand - shifted left to accommodate right panel
+        const map = L.map('map', {
+            center: [13.7367, 99.0], // Shifted west to accommodate right panel
+            zoom: 5.5,
+            zoomControl: true,
+            attributionControl: false
+        });
+
+        // Add dark theme OpenStreetMap tiles
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 18,
+            attribution: ''
+        }).addTo(map);
+
+        // Mock data for heatmap (Thai provinces with case counts)
+        const heatmapData = [
+            { lat: 13.7367, lng: 100.5231, intensity: 95, name: "กรุงเทพมหานคร", cases: 345 },
+            { lat: 18.7883, lng: 98.9853, intensity: 75, name: "เชียงใหม่", cases: 127 },
+            { lat: 15.2234, lng: 104.8264, intensity: 60, name: "ขอนแก่น", cases: 89 },
+            { lat: 7.8804, lng: 98.3923, intensity: 85, name: "ภูเก็ต", cases: 156 },
+            { lat: 12.9236, lng: 100.8739, intensity: 70, name: "พัทยา", cases: 98 },
+            { lat: 16.4322, lng: 102.8236, intensity: 45, name: "อุดรธานี", cases: 67 },
+            { lat: 8.5302, lng: 99.8173, intensity: 55, name: "สุราษฎร์ธานี", cases: 78 },
+            { lat: 14.9930, lng: 102.1038, intensity: 40, name: "บุรีรัมย์", cases: 45 },
+            { lat: 17.4860, lng: 101.7223, intensity: 35, name: "เลย", cases: 34 },
+            { lat: 9.1382, lng: 99.3339, intensity: 50, name: "สงขลา", cases: 71 }
+        ];
+
+        // Create heatmap markers with wave pulse animations
+        const heatmapCircles = [];
+        heatmapData.forEach((point, index) => {
+            const intensity = point.intensity;
+            let color, animationClass;
+            
+            // Color gradient and animation based on case count
+            if (intensity >= 80) {
+                color = '#FF0000';
+                animationClass = 'pulse-wave-high';
+            } else if (intensity >= 60) {
+                color = '#FF4500';
+                animationClass = 'pulse-wave-medium';
+            } else if (intensity >= 40) {
+                color = '#FF8C00';
+                animationClass = 'pulse-wave-medium';
+            } else {
+                color = '#FFD700';
+                animationClass = 'pulse-wave-low';
+            }
+
+            // Calculate radius based on nearby cases
+            const baseRadius = intensity * 800;
+            const pulseRadius = baseRadius * 1.5;
+
+            const circle = L.circle([point.lat, point.lng], {
+                color: color,
+                fillColor: color,
+                fillOpacity: 0.6,
+                radius: baseRadius,
+                weight: 2
+            }).addTo(map);
+
+            // Create pulse effect with custom HTML
+            const pulseMarker = L.divIcon({
+                className: 'pulse-marker',
+                html: `<div class="pulse-circle ${animationClass}" style="
+                    width: ${Math.max(20, intensity/3)}px; 
+                    height: ${Math.max(20, intensity/3)}px; 
+                    background: ${color}; 
+                    border-radius: 50%;
+                    animation-duration: ${intensity >= 80 ? '1s' : intensity >= 40 ? '1.5s' : '2s'};
+                    box-shadow: 0 0 0 0 ${color};
+                "></div>`,
+                iconSize: [Math.max(20, intensity/3), Math.max(20, intensity/3)],
+                iconAnchor: [Math.max(10, intensity/6), Math.max(10, intensity/6)]
+            });
+
+            const marker = L.marker([point.lat, point.lng], {icon: pulseMarker}).addTo(map);
+
+            // Add popup with case information
+            const popup = `
+                <div style="font-family: Arial; color: #00264E;">
+                    <h4 style="color: #00264E; margin-bottom: 10px;">${point.name}</h4>
+                    <p><strong>จำนวนคดี:</strong> ${point.cases} คดี</p>
+                    <p><strong>ระดับความรุนแรง:</strong> ${intensity}/100</p>
+                </div>
+            `;
+            
+            circle.bindPopup(popup);
+            marker.bindPopup(popup);
+            
+            heatmapCircles.push({circle, marker, data: point});
+        });
+
+        // Add CSS for pulse animations
+        const style = document.createElement('style');
+        style.textContent = `
+            .pulse-circle {
+                animation: pulseWave infinite;
+            }
+            
+            .pulse-wave-high {
+                animation: pulseWave 1s infinite;
+            }
+            
+            .pulse-wave-medium {
+                animation: pulseWaveMedium 1.5s infinite;
+            }
+            
+            .pulse-wave-low {
+                animation: pulseWaveLow 2s infinite;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Time display functionality
+        function updateTime() {
+            const now = new Date();
+            
+            // Convert to Buddhist Era (BE) and GMT+7
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const thailandTime = new Date(utc + (7 * 3600000));
+            
+            const day = thailandTime.getDate();
+            const months = [
+                'มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน',
+                'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'
+            ];
+            const month = months[thailandTime.getMonth()];
+            const year = thailandTime.getFullYear() + 543; // Convert to Buddhist Era
+            
+            const hours = thailandTime.getHours().toString().padStart(2, '0');
+            const minutes = thailandTime.getMinutes().toString().padStart(2, '0');
+            const seconds = thailandTime.getSeconds().toString().padStart(2, '0');
+            
+            const timeString = `${day} ${month} ${year} ${hours}:${minutes}:${seconds}`;
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        // Update time every second
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Filter button functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Here you would typically filter the data based on the time period
+                console.log('Filter selected:', this.getAttribute('data-filter'));
+            });
+        });
+
+        // Cases feed data (moved from heatmap activities)
+        const casesActivities = [
+            { location: "กรุงเทพมหานคร", caseType: "คดีฉ้อโกงออนไลน์ผ่าน Social Media" },
+            { location: "เชียงใหม่", caseType: "คดีค้ายาเสพติดข้ามแดน" },
+            { location: "ขอนแก่น", caseType: "คดีการฟอกเงินผ่านธุรกิจหน้ากาก" },
+            { location: "ภูเก็ต", caseType: "คดีค้ามนุษย์และแรงงานทาส" },
+            { location: "พัทยา", caseType: "คดีโรคแรงกรรมระหว่างประเทศ" },
+            { location: "อุดรธานี", caseType: "คดีขโมยข้อมูลส่วนบุคคล" },
+            { location: "สุราษฎร์ธานี", caseType: "คดีการปลอมแปลงเอกสารราชการ" },
+            { location: "บุรีรัมย์", caseType: "คดีเครือข่ายการพนันออนไลน์" },
+            { location: "เลย", caseType: "คดีการค้าข้อมูลส่วนบุคคล" },
+            { location: "สงขลา", caseType: "คดีการค้าอาวุธยุทโธปกรณ์" },
+            { location: "กรุงเทพมหานคร", caseType: "คดีไซเบอร์บูลลิ่งและแบล็กเมล์" },
+            { location: "เชียงใหม่", caseType: "คดีการฟอกเงินผ่านคริปโตฯ" },
+            { location: "ขอนแก่น", caseType: "คดีขายยาปลอมทางอินเทอร์เน็ต" },
+            { location: "ภูเก็ต", caseType: "คดีการหลอกลวงนักท่องเที่ยว" },
+            { location: "พัทยา", caseType: "คดีเครือข่ายค้าประเวณี" }
+        ];
+
+        // Function to add case activity
+        function addCaseActivity() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            const randomActivity = casesActivities[Math.floor(Math.random() * casesActivities.length)];
+            
+            const casesFeed = document.getElementById('casesFeed');
+            const activityDiv = document.createElement('div');
+            activityDiv.className = 'case-item';
+            activityDiv.innerHTML = `
+                <div class="location">${randomActivity.location} - ${hours}:${minutes}:${seconds}</div>
+                <div class="case-type">${randomActivity.caseType}</div>
+            `;
+            casesFeed.insertBefore(activityDiv, casesFeed.firstChild);
+            
+            // Keep only latest 15 items
+            while (casesFeed.children.length > 15) {
+                casesFeed.removeChild(casesFeed.lastChild);
+            }
+            
+            // Update statistics
+            updateStatistics();
+        }
+
+        // Function to update statistics
+        function updateStatistics() {
+            const stats = {
+                newCases: document.getElementById('newCases'),
+                activeCases: document.getElementById('activeCases'),
+                warrants: document.getElementById('warrants'),
+                closedCases: document.getElementById('closedCases')
+            };
+            
+            // Randomly update statistics
+            if (Math.random() > 0.7) {
+                const currentNew = parseInt(stats.newCases.textContent);
+                stats.newCases.textContent = currentNew + 1;
+            }
+            
+            if (Math.random() > 0.8) {
+                const currentActive = parseInt(stats.activeCases.textContent);
+                stats.activeCases.textContent = currentActive + (Math.random() > 0.5 ? 1 : -1);
+            }
+            
+            if (Math.random() > 0.9) {
+                const currentWarrants = parseInt(stats.warrants.textContent);
+                stats.warrants.textContent = currentWarrants + 1;
+            }
+            
+            if (Math.random() > 0.85) {
+                const currentClosed = parseInt(stats.closedCases.textContent);
+                stats.closedCases.textContent = currentClosed + 1;
+            }
+        }
+
+        // Initialize cases feed with some items
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => addCaseActivity(), i * 500);
+        }
+
+        // Add new case activities at random intervals
+        function scheduleNextCaseActivity() {
+            const randomDelay = Math.random() * 8000 + 2000; // 2-10 seconds
+            setTimeout(() => {
+                addCaseActivity();
+                scheduleNextCaseActivity();
+            }, randomDelay);
+        }
+        scheduleNextCaseActivity();
+        const feedItems = [
+            { time: "19:23:45", message: "ได้รับแจ้งคดีใหม่ - การฉ้อโกงออนไลน์ จ.กรุงเทพฯ" },
+            { time: "19:18:32", message: "ทีมสืบสวนจังหวัดเชียงใหม่ รายงานความคืบหน้า" },
+            { time: "19:15:21", message: "ออกหมายจับผู้ต้องหา คดีฟอกเงิน จ.ภูเก็ต" },
+            { time: "19:12:09", message: "ปิดคดีสำเร็จ - การค้ายาเสพติด จ.ขอนแก่น" },
+            { time: "19:08:47", message: "ประสานงานกับหน่วยงานต่างประเทศ คดีข้ามแดน" },
+            { time: "19:05:33", message: "อัพเดทฐานข้อมูลคดี - เพิ่มหลักฐานใหม่" },
+            { time: "19:02:15", message: "การประชุมทีมสอบสวน - คดีพิเศษ เวลา 20:00 น." },
+            { time: "18:58:42", message: "ได้รับรายงานจากสำนักงานตำรวจแห่งชาติ" }
+        ];
+
+        // Function to add feed items
+        function addFeedItem(item) {
+            const feedContent = document.getElementById('feedContent');
+            const feedItemDiv = document.createElement('div');
+            feedItemDiv.className = 'feed-item';
+            feedItemDiv.innerHTML = `
+                <div class="time">${item.time}</div>
+                <div class="message">${item.message}</div>
+            `;
+            feedContent.insertBefore(feedItemDiv, feedContent.firstChild);
+            
+            // Keep only latest 20 items
+            while (feedContent.children.length > 20) {
+                feedContent.removeChild(feedContent.lastChild);
+            }
+        }
+
+        // Initialize feed with existing items
+        feedItems.reverse().forEach(item => addFeedItem(item));
+
+        // Simulate new feed items every 30 seconds
+        const newFeedMessages = [
+            "ตรวจสอบข้อมูลผู้ต้องสงสัย - คดีไซเบอร์",
+            "ประสานงานกับตำรวจภูธรภาค 8",
+            "วิเคราะห์หลักฐานดิจิทัล - คดีพิเศษ",
+            "รายงานผลการปฏิบัติงานประจำวัน",
+            "อัพเดทสถานะคดี - รอการพิจารณา"
+        ];
+
+        setInterval(() => {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            const randomMessage = newFeedMessages[Math.floor(Math.random() * newFeedMessages.length)];
+            
+            addFeedItem({
+                time: `${hours}:${minutes}:${seconds}`,
+                message: randomMessage
+            });
+        }, 30000);
+
+        // Add some interactivity to the map
+        map.on('zoomend', function() {
+            console.log('Current zoom level:', map.getZoom());
+        });
+
+        // Fit map to Thailand bounds - adjusted for left focus
+        const thailandBounds = [
+            [5.5, 96.0], // Southwest coordinates - shifted west
+            [20.5, 104.0] // Northeast coordinates - shifted west
+        ];
+        map.fitBounds(thailandBounds);
+    </script>
+</body>
+</html>
