@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --section-bg-color: #ffffff;
+            --card-bg-color: #f8f9fa;
+            --text-color: #343a40;
+            --header-color: #004a99;
+            --accent-color-1: #007bff;
+            --accent-color-2: #28a745;
+            --accent-color-3: #ffc107;
+            --accent-color-4: #dc3545;
+            --border-color: #dee2e6;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        body { font-family: 'Sarabun', sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
+        .main-header { background-color: var(--header-color); color: white; padding: 1.25rem 2rem; text-align: center; position: sticky; top: 0; z-index: 1000; }
+        .dashboard-wrapper { padding: 1.5rem; }
+        .dashboard-section { background-color: var(--section-bg-color); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow); }
+        .section-title { font-size: 1.75rem; font-weight: 700; margin: 0 0 1.5rem 0; padding-bottom: 1rem; border-bottom: 3px solid var(--header-color); display: flex; align-items: center; }
+        .section-icon { margin-right: 1rem; font-size: 2rem; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+        .card { background-color: var(--card-bg-color); border: 1px solid var(--border-color); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; }
+        .card-title { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); }
+        .chart-container { flex-grow: 1; min-height: 250px; }
+        .search-form-mockup { padding: 1rem; border: 2px dashed var(--border-color); border-radius: 8px; margin-top: 1rem; }
+        .search-form-mockup .form-row { display: flex; gap: 1rem; margin-bottom: 1rem; }
+        .search-form-mockup .form-control { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px; font-family: 'Sarabun', sans-serif; font-size: 1rem; }
+        .search-form-mockup .form-control[type="date"] { color: #6c757d; }
+        .search-form-mockup button { width: 100%; padding: 0.75rem; border: none; border-radius: 6px; background-color: var(--accent-color-2); color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <h1>Asset Dashboard</h1>
+    </header>
+
+    <div class="dashboard-wrapper">
+        
+        <section class="dashboard-section">
+            <h2 class="section-title"><span class="section-icon">📦</span>1. วัสดุ</h2>
+            <div class="grid-container">
+                <div class="card"><h3 class="card-title">1.1 ภาพรวมรายการ</h3><div class="chart-container" id="mat_1_chart"></div></div>
+                <div class="card"><h3 class="card-title">1.1 มูลค่าคงคลัง</h3><div class="chart-container" id="mat_1b_chart"></div></div>
+                <div class="card"><h3 class="card-title">1.2 การรับเข้า</h3><div class="chart-container" id="mat_2_chart"></div></div>
+                <div class="card"><h3 class="card-title">1.3 การเบิก</h3><div class="chart-container" id="mat_3_chart"></div></div>
+            </div>
+        </section>
+        
+        <section class="dashboard-section">
+            <h2 class="section-title"><span class="section-icon">💻</span>2. ครุภัณฑ์</h2>
+            <div class="grid-container">
+                <div class="card"><h3 class="card-title">2.1 ภาพรวมและสถานะ</h3><div class="chart-container" id="eq_1_chart"></div></div>
+                <div class="card"><h3 class="card-title">2.1 การกระจายตัว</h3><div class="chart-container" id="eq_1b_chart"></div></div>
+                <div class="card"><h3 class="card-title">2.2 การรับเข้า</h3><div class="chart-container" id="eq_2_chart"></div></div>
+                <div class="card"><h3 class="card-title">2.3 การเบิก/ยืม</h3><div class="chart-container" id="eq_3_chart"></div></div>
+                <div class="card"><h3 class="card-title">2.5 ซ่อมบำรุง</h3><div class="chart-container" id="eq_5_chart"></div></div>
+                <div class="card"><h3 class="card-title">2.6 ตรวจสอบประจำปี</h3><div class="chart-container" id="eq_6_chart"></div></div>
+            </div>
+        </section>
+
+        <section class="dashboard-section">
+            <h2 class="section-title"><span class="section-icon">🚚</span>3. ยานพาหนะ</h2>
+            <div class="grid-container">
+                <div class="card"><h3 class="card-title">3.1 ภาพรวมประเภทและสถานะ</h3><div class="chart-container" id="veh_1_chart"></div></div>
+                <div class="card"><h3 class="card-title">3.1 ภาพรวมเชื้อเพลิง</h3><div class="chart-container" id="veh_1b_chart"></div></div>
+                <div class="card"><h3 class="card-title">3.2 การรับเข้า</h3><div class="chart-container" id="veh_2_chart"></div></div>
+                <div class="card"><h3 class="card-title">3.5 ซ่อมบำรุง</h3><div class="chart-container" id="veh_5_chart"></div></div>
+            </div>
+        </section>
+
+        <section class="dashboard-section">
+            <h2 class="section-title"><span class="section-icon">🛡️</span>4. ยุทธภัณฑ์</h2>
+            <div class="grid-container">
+                <div class="card"><h3 class="card-title">4.1 ภาพรวมประเภท</h3><div class="chart-container" id="ord_1_chart"></div></div>
+                 <div class="card"><h3 class="card-title">4.1 ประเทศผู้ผลิต</h3><div class="chart-container" id="ord_1b_chart"></div></div>
+                <div class="card"><h3 class="card-title">4.3 การเบิก/ยืม</h3><div class="chart-container" id="ord_3_chart"></div></div>
+                <div class="card"><h3 class="card-title">4.6 ตรวจสอบประจำปี</h3><div class="chart-container" id="ord_6_chart"></div></div>
+            </div>
+        </section>
+
+        <section class="dashboard-section">
+             <h2 class="section-title"><span class="section-icon">🚗</span>5. Carpool</h2>
+             <div class="grid-container" style="grid-template-columns: 1fr 1.5fr;">
+                 <div class="card">
+                     <h3 class="card-title">ภาพรวมสถานะ Fleet และการค้นหา</h3>
+                     <div class="chart-container" id="carpool_kpi_chart"></div>
+                     <div class="search-form-mockup">
+                         <div class="form-row"><select class="form-control"><option>ประเภทรถทั้งหมด</option><option>รถเก๋ง</option><option>รถตู้</option></select></div>
+                         <div class="form-row"><input type="date" class="form-control" value="2025-07-22"></div>
+                         <button>ค้นหารถว่าง</button>
+                     </div>
+                 </div>
+                  <div class="card">
+                     <h3 class="card-title">แนวโน้มและวัตถุประสงค์การจอง</h3>
+                     <div class="chart-container" id="carpool_trend_chart"></div>
+                     <div class="chart-container" id="carpool_purpose_chart" style="margin-top:1rem;"></div>
+                 </div>
+             </div>
+        </section>
+        
+        <section class="dashboard-section">
+            <h2 class="section-title"><span class="section-icon">📝</span>6. จัดซื้อจัดจ้าง</h2>
+            <div class="grid-container">
+                <div class="card"><h3 class="card-title">6.1 ภาพรวมการจัดซื้อ</h3><div class="chart-container" id="proc_1_chart"></div></div>
+                <div class="card"><h3 class="card-title">6.2 ภาพรวมการจัดจ้าง</h3><div class="chart-container" id="proc_2_chart"></div></div>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chartFont = 'Sarabun, sans-serif';
+            const defaultOptions = { chart: { fontFamily: chartFont, animations: { enabled: false }}, legend: { position: 'bottom' } };
+
+            // 1. วัสดุ
+            new ApexCharts(document.querySelector("#mat_1_chart"), { ...defaultOptions, series: [44, 55, 31], labels: ['ใกล้หมด', 'ใกล้หมดอายุ', 'ปกติ'], chart: { type: 'donut' }, title: { text: 'สถานะวัสดุ' }}).render();
+            new ApexCharts(document.querySelector("#mat_1b_chart"), { ...defaultOptions, series: [{name: 'มูลค่า (บาท)', data: [550000, 320000, 150000]}], chart: { type: 'bar'}, xaxis: { categories: ['คลัง A', 'คลัง B', 'คลัง C']}, title: { text: 'มูลค่าตามคลัง' }}).render();
+            new ApexCharts(document.querySelector("#mat_2_chart"), { ...defaultOptions, series: [{name: 'มูลค่า (บาท)', data: [120000, 85000, 210000]}], chart: { type: 'bar'}, xaxis: { categories: ['เครื่องเขียน', 'ไฟฟ้า', 'ก่อสร้าง']}, title: { text: 'มูลค่ารับเข้าตามประเภท' }}).render();
+            new ApexCharts(document.querySelector("#mat_3_chart"), { ...defaultOptions, series: [{name: 'จำนวนครั้ง', data: [150, 120, 95]}], chart: { type: 'bar'}, plotOptions: { bar: { horizontal: true }}, xaxis: { categories: ['ฝ่าย IT', 'ฝ่ายบุคคล', 'ฝ่ายอาคาร']}, title: { text: 'หน่วยงานที่เบิกสูงสุด' }}).render();
+
+            // 2. ครุภัณฑ์
+            new ApexCharts(document.querySelector("#eq_1_chart"), { ...defaultOptions, series: [75, 15, 10], labels: ['ใช้งานได้', 'ชำรุด', 'รอจำหน่าย'], chart: { type: 'pie' }, title: { text: 'สถานะครุภัณฑ์' }}).render();
+            new ApexCharts(document.querySelector("#eq_1b_chart"), { ...defaultOptions, series: [{ data: [{ x: 'ฝ่าย IT', y: 250 }, { x: 'ส่วนกลาง', y: 400 }, { x: 'ฝ่ายขาย', y: 180 }] }], chart: { type: 'treemap'}, title: { text: 'การกระจายตัวตามหน่วยงาน' }}).render();
+            new ApexCharts(document.querySelector("#eq_2_chart"), { ...defaultOptions, series: [60, 40], labels: ['จัดซื้อ', 'รับบริจาค'], chart: { type: 'donut' }, title: { text: 'วิธีการได้มา' }}).render();
+            new ApexCharts(document.querySelector("#eq_3_chart"), { ...defaultOptions, series: [45, 30, 25], labels: ['ใช้งานปกติ', 'จัดกิจกรรม', 'ทดแทน'], chart: { type: 'pie' }, title: { text: 'วัตถุประสงค์การเบิก' }}).render();
+            new ApexCharts(document.querySelector("#eq_5_chart"), { ...defaultOptions, series: [{ name: 'จำนวน', data: [10, 18, 32] }], chart: {type: 'bar', stacked: true}, plotOptions: { bar: { horizontal: true }}, xaxis: { categories: ['รอซ่อม', 'กำลังซ่อม', 'ซ่อมเสร็จ']}, title: { text: 'สถานะการซ่อม' }}).render();
+            new ApexCharts(document.querySelector("#eq_6_chart"), { ...defaultOptions, series: [15, 8, 5], chart: {type: 'radialBar'}, labels: ['ไม่ตรงบัญชี', 'ชำรุด', 'สูญหาย'], title: { text: 'ผลการตรวจสอบ' }}).render();
+
+            // 3. ยานพาหนะ
+            new ApexCharts(document.querySelector("#veh_1_chart"), { ...defaultOptions, series: [{name: 'จำนวน', data: [80, 45, 22]}], chart: { type: 'bar'}, xaxis: { categories: ['รถเก๋ง', 'รถกระบะ', 'รถตู้']}, title: { text: 'ประเภทรถ' }}).render();
+            new ApexCharts(document.querySelector("#veh_1b_chart"), { ...defaultOptions, series: [70, 25, 5], labels: ['ดีเซล', 'เบนซิน', 'ไฟฟ้า'], chart: { type: 'donut' }, title: { text: 'ประเภทเชื้อเพลิง' }}).render();
+            new ApexCharts(document.querySelector("#veh_2_chart"), { ...defaultOptions, series: [90, 10], labels: ['จัดซื้อ', 'เช่า'], chart: { type: 'pie' }, title: { text: 'วิธีการได้มา' }}).render();
+            new ApexCharts(document.querySelector("#veh_5_chart"), { ...defaultOptions, series: [{ data: [{ x: 'รออะไหล่', y: 5 }, { x: 'กำลังซ่อม', y: 12 }, { x: 'ซ่อมเสร็จ', y: 25 }] }], chart: { type: 'treemap'}, title: { text: 'สถานะการซ่อม' }}).render();
+
+            // 4. ยุทธภัณฑ์
+            new ApexCharts(document.querySelector("#ord_1_chart"), { ...defaultOptions, series: [{ data: [{ x: 'ปืนสั้น', y: 218 }, { x: 'ปืนยาว', y: 149 }, {x: 'ปืนกล', y: 55}] }], chart: { type: 'treemap' }, title: { text: 'ประเภทหลัก' }}).render();
+            new ApexCharts(document.querySelector("#ord_1b_chart"), { ...defaultOptions, series: [{name: 'จำนวน', data: [150, 120, 85, 62]}], chart: { type: 'bar'}, plotOptions: { bar: { horizontal: true }}, xaxis: { categories: ['USA', 'Germany', 'Israel', 'Thailand']}, title: { text: 'ประเทศผู้ผลิต' }}).render();
+            new ApexCharts(document.querySelector("#ord_3_chart"), { ...defaultOptions, series: [80, 15, 5], labels: ['ฝึกซ้อม', 'ปฏิบัติภารกิจ', 'ดูแลรักษา'], chart: { type: 'pie' }, title: { text: 'วัตถุประสงค์การเบิก' }}).render();
+            new ApexCharts(document.querySelector("#ord_6_chart"), { ...defaultOptions, series: [5, 2, 1], chart: {type: 'radialBar'}, labels: ['คงเหลือไม่ตรง', 'ชำรุด', 'สูญหาย'], title: { text: 'ผลการตรวจสอบ' }}).render();
+
+            // 5. Carpool
+            new ApexCharts(document.querySelector("#carpool_kpi_chart"), { ...defaultOptions, series: [71, 15, 8], chart: { type: 'radialBar', height: 280 }, plotOptions: { radialBar: { offsetY: -10, dataLabels: { total: { show: true, label: 'FLEET', formatter: () => 1250 }}}}, labels: ['พร้อมใช้งาน', 'จองแล้ว', 'รอซ่อม'], colors: ['var(--accent-color-2)', 'var(--accent-color-1)', 'var(--accent-color-3)'] }).render();
+            const days = Array.from({length: 30}, (_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return d.toLocaleDateString('th-TH', {day: '2-digit', month: 'short'}); }).reverse();
+            const bookings = Array.from({length: 30}, () => Math.floor(Math.random() * (400 - 150 + 1) + 150));
+            new ApexCharts(document.querySelector("#carpool_trend_chart"), { ...defaultOptions, series: [{ name: 'จำนวนการจอง', data: bookings }], chart: { type: 'area', height: 200 }, xaxis: { categories: days, labels: { rotate: -45, style: { fontSize: '10px' }}}, dataLabels: { enabled: false }, stroke: { curve: 'smooth' } }).render();
+            new ApexCharts(document.querySelector("#carpool_purpose_chart"), { ...defaultOptions, series: [45, 35, 20], labels: ['เดินทางไปราชการ', 'รับ-ส่งเอกสาร', 'อื่นๆ'], chart: { type: 'donut', height: 220 }, title: { text: 'วัตถุประสงค์การจอง'} }).render();
+
+            // 6. จัดซื้อจัดจ้าง
+            new ApexCharts(document.querySelector("#proc_1_chart"), { ...defaultOptions, series: [{name: 'ล้านบาท', data: [5.2, 3.1, 1.8]}], chart: {type:'bar'}, xaxis: {categories: ['e-bidding', 'เฉพาะเจาะจง', 'สอบราคา']}, title: {text: 'มูลค่าการจัดซื้อตามประเภท'}}).render();
+            new ApexCharts(document.querySelector("#proc_2_chart"), { ...defaultOptions, series: [{name: 'ล้านบาท', data: [12.8, 8.5, 4.2]}], chart: {type:'bar'}, xaxis: {categories: ['เฉพาะเจาะจง', 'e-bidding', 'คัดเลือก']}, title: {text: 'มูลค่าการจัดจ้างตามประเภท'}}).render();
+            
+        });
+    </script>
+
+</body>
+</html>
