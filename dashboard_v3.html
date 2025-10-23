@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard ศอ.ปส.ตร.</title>
+
+     <!-- Fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Kanit' rel='stylesheet'>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      crossorigin="anonymous"
+    />
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <style>
+        html,body{height:100%}
+        body{
+            margin:0;padding:0;
+            background: #1c295c;
+            background: radial-gradient(circle, rgba(28, 41, 92, 1) 30%, rgba(14, 21, 48, 1) 100%);
+            color:#EAF0FF;
+            /* font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; */
+            font-family: 'Kanit';
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            display:flex;justify-content:center;padding:28px;
+        }
+
+        .logo{
+            width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+            font-weight:700;color:#121B43;background:linear-gradient(180deg,#FDB902, #f7c24f);
+            box-shadow: 0 6px 18px rgba(253,185,2,0.14);
+            font-family:'Kanit';
+        }
+        .topic{
+            font-size:1.25rem;font-weight:600;margin-bottom:8px;color:#FDB902;
+        }
+        .subtopic{
+            font-size:1rem;font-weight:500;margin-bottom:4px;color:#AAB0D6;
+        }
+        .bg-list{
+            background-color:#121933;
+            color: white;
+        }
+        /* Loader (Elegant: line + logo) */
+        #loaderOverlay{
+            position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+            background:linear-gradient(180deg, rgba(2,6,23,0.85), rgba(2,6,23,0.95));
+            z-index:60;backdrop-filter: blur(4px);
+        }
+        .loaderBox{
+            width:320px;max-width:90%;text-align:center;color:#fff;
+        }
+        .loaderLogo{
+            width:72px;height:72px;border-radius:12px;margin:0 auto 12px;
+            background:linear-gradient(180deg,#FDB902,#f7c24f);
+            display:flex;align-items:center;justify-content:center;font-weight:800;color:#121B43;font-family:Orbitron;
+            box-shadow:0 8px 26px rgba(219,160,30,0.12);
+        }
+        .loaderLine{
+            height:6px;border-radius:999px;background:rgba(255,255,255,0.06);overflow:hidden;margin-top:12px;
+        }
+        .loaderBar{
+            height:6px;border-radius:999px;background:linear-gradient(90deg,#FFD77A,#FFDCA6);
+            width:0%;
+        }
+        .loaderText{color:#A9B0D6;margin-top:10px;font-size:0.95rem}
+    </style>
+</head>
+<body>
+    <!-- Loader (Elegant) -->
+    <div id="loaderOverlay" aria-hidden="false">
+        <div class="loaderBox" role="status" aria-live="polite">
+        <div class="loaderLogo">NSB</div>
+        <div style="font-weight:700;font-family:'Kanit';font-size:1.05rem">Dashboard</div>
+        <div class="loaderText" id="loaderMsg">กำลังโหลดข้อมูล...</div>
+        <div class="loaderLine" aria-hidden="true"><div class="loaderBar" id="loaderBar"></div></div>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="card mb-3" style="max-width: 100%;background-color: #121933;color: white;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-12 col-md-5 col-lg-5">
+                        <div class="row">
+                            <div class="col-sm-4 col-md-3 col-lg-2">
+                                <div class="logo" aria-hidden="true">NSB</div>
+                            </div>
+                            <div class="col-sm-8 col-md-9 col-lg-10">
+                                <h5 class="card-title">ศูนย์อำนวยการป้องกันและปราบปรามยาเสพติด</h5>
+                                <div class="card-text">สำนักงานตำรวจแห่งชาติ</div>
+                                <div class="card-text">(ศอ.ปส.ตร.)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-7 col-lg-7 text-md-end text-lg-end text-sm-start">
+                        <div class="row">
+                            <div class="col-4 text-center">
+                                <div class="card-text topic" id="dateRangeOperation">1 - 21 ต.ค. 68</div>
+                                <div class="card-text subtopic">ห้วงเวลา</div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="card-text topic" id="dateNumOperation">21</div>
+                                <div class="card-text subtopic">ดำเนินการได้(วัน)</div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div class="card-text topic" id="percentageOepration">5.75</div>
+                                <div class="card-text subtopic">ต้องดำเนินการได้ร้อยละ</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="card col-sm-12 col-md6 col-lg-4" style="background-color:#121933;">
+                                <div class="card-body text-center text-white">
+                                    <div class="card-title topic">14,720</div>
+                                    <div class="card-text subtopic">คดียาเสพติด</div>
+                                </div>
+                            </div>
+                            <div class="card col-sm-12 col-md6 col-lg-4" style="background-color:#121933;">
+                                <div class="card-body text-center text-white">
+                                    <div class="card-title topic">14,676</div>
+                                    <div class="card-text subtopic">ผู้ต้องหา</div>
+                                </div>
+                            </div>
+                            <div class="card col-sm-12 col-md6 col-lg-4" style="background-color:#121933;">
+                                <div class="card-body text-center text-white">
+                                    <div class="card-title topic">205</div>
+                                    <div class="card-text subtopic">จับตามหมายจับ</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-3" style="max-width: 100%;background-color: #121933;color: white;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-12 div-md-6 col-lg-6">
+                        <div class="card my-1" style="background-color:#121933;">
+                            <div class="card-body">
+                                <div class="card-title topic">ประเภทสัดส่วนของยา</div>
+                                <canvas id="doughnutChart" aria-label="Composition Chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 div-md-6 col-lg-6">
+                        <div class="card my-1" style="background-color:#121933;">
+                            <div class="card-body">
+                                <div class="card-title topic">รายละเอียดยาเสพติด</div>
+                                <div class="card-text">
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex bg-list justify-content-between align-items-start">
+                                            <div class="fw-bold ms-2 me-auto">
+                                                ยาบ้า
+                                            </div>
+                                            <div class="fw-bold ms-2 me-auto">52,568,501</div>
+                                        </li>
+                                        <li class="list-group-item d-flex bg-list justify-content-between align-items-start">
+                                            <div class="fw-bold ms-2 me-auto">
+                                                ไอซ์
+                                            </div>
+                                            <div class="fw-bold ms-2 me-auto">1,353.42</div>
+                                        </li>
+                                        <li class="list-group-item d-flex bg-list justify-content-between align-items-start">
+                                            <div class="fw-bold ms-2 me-auto">
+                                                เคตามีน
+                                            </div>
+                                            <div class="fw-bold ms-2 me-auto">598.03</div>
+                                        </li>
+                                        <li class="list-group-item d-flex bg-list justify-content-between align-items-start">
+                                            <div class="fw-bold ms-2 me-auto">
+                                                เฮโรอีน
+                                            </div>
+                                            <div class="fw-bold ms-2 me-auto">5.924</div>
+                                        </li>
+                                        <li class="list-group-item d-flex bg-list justify-content-between align-items-start">
+                                            <div class="fw-bold ms-2 me-auto">
+                                                ยาอี
+                                            </div>
+                                            <div class="fw-bold ms-2 me-auto">2,250</div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        async function fetchData(){
+            axios.get('https://script.google.com/macros/s/AKfycbwr5JpZOnBZ7G7CWn--KsjYhIcGco_VxQwEoFALODZQ8H1FnZzT0zbqU-S2ts_iQSEXpQ/exec?cell=AG47:AH48')
+            .then(response => {
+                const user = response.data;
+                console.log(user)
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        async function initDough(){
+            comp = {
+                labels:['ยาบ้า','ไอซ์','เคตามีน','เฮโรอีน','ยาอี'],
+                vals:[52568501,1353.42,598.03,5.924,2250]
+            }
+            const doughCtx = document.getElementById('doughnutChart').getContext('2d');
+            window.dough = new Chart(doughCtx, {
+                type:'doughnut',
+                data:{ labels: comp.labels, datasets:[{ data: comp.vals, backgroundColor:['#FDB902','#2B3A8A','#3E4A89','#5A66B5','#8EA8FF','#A0A8D6'] }]},
+                options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#DCE6FF'}}}}
+            });
+        }
+
+        async function boot(){
+            const loaderOverlay = document.getElementById('loaderOverlay');
+            const loaderBar = document.getElementById('loaderBar');
+            const loaderMsg = document.getElementById('loaderMsg');
+
+            // show loader
+            loaderOverlay.style.display = 'flex';
+            // animate loader bar and text
+
+            // anime({
+            //     targets: loaderBar,
+            //     width: ['0%','60%'],
+            //     duration: 900,
+            //     easing: 'easeOutQuad'
+            // });
+            // loaderMsg.textContent = 'เตรียมข้อมูล...';
+
+            // initialize charts (which use fetchData dummy)
+            // await fetchAPI();
+            // await initCharts();
+
+            await initDough()
+            await fetchData();
+            await fetchData();
+            await fetchData();
+
+            // finalize loader
+            anime({
+                targets: loaderBar,
+                width: ['0%','100%'],
+                duration: 3000,
+                easing: 'linear',
+                complete: ()=> {
+                anime({
+                    targets: loaderOverlay,
+                    opacity: [1,0],
+                    duration: 420,
+                    easing: 'easeInOutQuad',
+                    complete: ()=> { loaderOverlay.style.display = 'none'; loaderOverlay.setAttribute('aria-hidden','true'); }
+                });
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', ()=>{
+            boot(); // start loader + init
+        });
+        
+        // prevent accidental text selection while dragging
+        document.addEventListener('selectstart', (e)=> e.preventDefault());
+    </script>
+</body>
+</html>
