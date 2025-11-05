@@ -101,37 +101,43 @@
                     </div>
                     <div class="col-sm-12 col-md-7 col-lg-7 text-md-end text-lg-end text-sm-start">
                         <div class="row">
-                            <div class="col-4 text-center">
-                                <div class="card-text topic" id="dateRangeOperation">1 - 21 ต.ค. 68</div>
+                            <div class="col-4 my-3 text-center">
+                                <div class="card-text topic" id="P2"></div>
                                 <div class="card-text subtopic">ห้วงเวลา</div>
                             </div>
-                            <div class="col-4 text-center">
-                                <div class="card-text topic" id="dateNumOperation">21</div>
+                            <div class="col-4 my-3 text-center">
+                                <div class="card-text topic" id="Q2"></div>
                                 <div class="card-text subtopic">ดำเนินการได้(วัน)</div>
                             </div>
-                            <div class="col-4 text-center">
-                                <div class="card-text topic" id="percentageOepration">5.75</div>
+                            <div class="col-4 my-3 text-center">
+                                <div class="card-text topic" id="R2"></div>
                                 <div class="card-text subtopic">ต้องดำเนินการได้ร้อยละ</div>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="card col-sm-12 col-md6 col-lg-4" style="background-color:#121933;">
-                                <div class="card-body text-center text-white">
-                                    <div class="card-title topic">14,720</div>
-                                    <div class="card-text subtopic">คดียาเสพติด</div>
-                                </div>
+                            <div class="col-sm-12 col-md-6 col-lg-4 my-3 text-center">
+                                <div class="card-text topic" id="X17"></div>
+                                <div class="card-text subtopic">ยึดอายัดทรัพย์สิน</div>
                             </div>
-                            <div class="card col-sm-12 col-md6 col-lg-4" style="background-color:#121933;">
-                                <div class="card-body text-center text-white">
-                                    <div class="card-title topic">14,676</div>
-                                    <div class="card-text subtopic">ผู้ต้องหา</div>
-                                </div>
+                            <div class="col-sm-12 col-md-6 col-lg-4 my-3 text-center">
+                                <div class="card-text topic" id="AG49"></div>
+                                <div class="card-text subtopic">คดียาเสพติด</div>
                             </div>
-                            <div class="card col-sm-12 col-md6 col-lg-4" style="background-color:#121933;">
-                                <div class="card-body text-center text-white">
-                                    <div class="card-title topic">205</div>
-                                    <div class="card-text subtopic">จับตามหมายจับ</div>
-                                </div>
+                            <div class="col-sm-12 col-md-6 col-lg-4 my-3 text-center">
+                                <div class="card-text topic" id="AH49"></div>
+                                <div class="card-text subtopic">ผู้ต้องหา</div>
+                            </div>
+                            <div class="col-sm-12 col-md-6 col-lg-4 my-3 text-center">
+                                <div class="card-text topic" id="AA17"></div>
+                                <div class="card-text subtopic">จับตามหมายจับ</div>
+                            </div>
+                            <div class="col-sm-12 col-md-6 col-lg-4 my-3 text-center">
+                                <div class="card-text topic" id="U17"></div>
+                                <div class="card-text subtopic">ข้อหาสมคบ</div>
+                            </div>
+                            <div class="col-sm-12 col-md-6 col-lg-4 my-3 text-center">
+                                <div class="card-text topic" id="AD17"></div>
+                                <div class="card-text subtopic">ข้อหาฟอกเงิน</div>
                             </div>
                         </div>
                     </div>
@@ -159,31 +165,31 @@
                                             <div class="fw-bold ms-2 me-auto">
                                                 ยาบ้า
                                             </div>
-                                            <div class="fw-bold ms-2 me-auto">52,568,501</div>
+                                            <div class="fw-bold ms-2 me-auto" id="Q32"></div>
                                         </li>
                                         <li class="list-group-item d-flex bg-list justify-content-between align-items-start">
                                             <div class="fw-bold ms-2 me-auto">
                                                 ไอซ์
                                             </div>
-                                            <div class="fw-bold ms-2 me-auto">1,353.42</div>
+                                            <div class="fw-bold ms-2 me-auto" id="R32"></div>
                                         </li>
                                         <li class="list-group-item d-flex bg-list justify-content-between align-items-start">
                                             <div class="fw-bold ms-2 me-auto">
                                                 เคตามีน
                                             </div>
-                                            <div class="fw-bold ms-2 me-auto">598.03</div>
+                                            <div class="fw-bold ms-2 me-auto" id="U32"></div>
                                         </li>
                                         <li class="list-group-item d-flex bg-list justify-content-between align-items-start">
                                             <div class="fw-bold ms-2 me-auto">
                                                 เฮโรอีน
                                             </div>
-                                            <div class="fw-bold ms-2 me-auto">5.924</div>
+                                            <div class="fw-bold ms-2 me-auto" id="S32"></div>
                                         </li>
                                         <li class="list-group-item d-flex bg-list justify-content-between align-items-start">
                                             <div class="fw-bold ms-2 me-auto">
                                                 ยาอี
                                             </div>
-                                            <div class="fw-bold ms-2 me-auto">2,250</div>
+                                            <div class="fw-bold ms-2 me-auto" id="T32"></div>
                                         </li>
                                     </ul>
                                 </div>
@@ -197,11 +203,30 @@
 
 
     <script>
+        const targetCell = ['P2','Q2','R2', 'X17', 'AG49', 'AH49', 'AA17', 'U17', 'AD17', 'Q32', 'R32', 'U32', 'S32', 'T32'];
+
+        async function renderValueFromCell(destCell, data){
+            destCell.forEach((cell)=>{
+                console.log(data[cell][0][0]);
+                document.getElementById(cell).textContent = data[cell][0][0];
+            })
+        }
+
+        async function concatCell(){
+            let finalStr = '';
+            targetCell.forEach(async(cell)=>{
+                finalStr += cell + ',';
+            })
+            return finalStr.slice(0,-1);
+        }
+
         async function fetchData(){
-            axios.get('https://script.google.com/macros/s/AKfycbwr5JpZOnBZ7G7CWn--KsjYhIcGco_VxQwEoFALODZQ8H1FnZzT0zbqU-S2ts_iQSEXpQ/exec?cell=AG47:AH48')
+            let endpoint = 'https://script.google.com/macros/s/AKfycbz3MQ_eDUYlLckR1Jqiss-ex3S-5xO8saDU9QXXFUM9F2moLU7Ur_Q-ggdcuFlaFwJdtg/exec?cell='
+            endpoint += await concatCell();
+            axios.get(endpoint)
             .then(response => {
-                const user = response.data;
-                console.log(user)
+                const respData = response.data.data;
+                renderValueFromCell(targetCell, respData);
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -244,8 +269,7 @@
 
             await initDough()
             await fetchData();
-            await fetchData();
-            await fetchData();
+            
 
             // finalize loader
             anime({
@@ -267,6 +291,7 @@
 
         document.addEventListener('DOMContentLoaded', ()=>{
             boot(); // start loader + init
+            concatCell();
         });
         
         // prevent accidental text selection while dragging
