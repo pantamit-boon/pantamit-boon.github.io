@@ -23,6 +23,49 @@
   <!-- Root ของแอป -->
   <div id="app">
     <v-app>
+      <!-- FIXED CENTER Loading Overlay -->
+      <div 
+        v-show="isLoading" 
+        id="global-loading"
+        style="
+          position: fixed;
+          inset: 0;
+          background: linear-gradient(135deg, #0F1F4A, #243A73);
+          z-index: 9999;
+        "
+      >
+        <!-- กล่องกลางจอ -->
+        <div
+          style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+          "
+        >
+          <!-- Logo -->
+          <v-img 
+            src="https://thailpr.com/nsb_logo.png"
+            width="140"
+          ></v-img>
+          <p class="text-white" style="font-size:18px;">กองบัญชาการตำรวจปราบปรามยาเสพติด</p>
+          <!-- Progress -->
+          <v-progress-linear
+            indeterminate
+            color="amber-lighten-2"
+            height="6"
+            style="width: 320px; max-width: 80%; border-radius:10px;"
+          ></v-progress-linear>
+          <!-- Text -->
+          <div id="loading-text" class="text-white" style="font-size:18px;">
+            กำลังโหลดข้อมูล...
+          </div>
+        </div>
+      </div>
       <v-main>
         <v-container fluid class="pa-0">
           <v-row class="px-6 d-flex align-center justify-center justify-md-end text-white" style="background-color:#121B43;">
@@ -145,6 +188,15 @@
     const app = createApp({
       data() {
         return {
+          isLoading: true,
+          loadingInterval: null,
+          loadingMessages: [
+            "กำลังเชื่อมต่อระบบ…",
+            "กำลังโหลดข้อมูล…",
+            "กำลังประมวลผลสถิติ…",
+            "กำลังจัดเตรียมรายงาน…",
+            "ใกล้เสร็จแล้ว…"
+          ],
           targetCell: ['P2','Q2','R2', 'X17', 'AG49', 'AH49', 'AA17', 'U17', 'AD17', 'Q32', 'R32', 'U32', 'S32', 'T32'],
           p2: '',
           ag49: '',
@@ -163,9 +215,56 @@
         };
       },
       async mounted() {
+        // await this.fetchData();
+        this.startLoadingAnimation();
         await this.fetchData();
       },
       methods: {
+        startLoadingAnimation() {
+          let msgIndex = 0;
+          // Fade-in แบบนุ่ม
+          anime({
+            targets: '#global-loading',
+            opacity: [0, 1],
+            duration: 700,
+            easing: 'easeOutQuad'
+          });
+          // เปลี่ยนข้อความช้า ๆ แบบสุภาพ
+          this.loadingInterval = setInterval(() => {
+            const el = document.getElementById('loading-text');
+            if (!el) return;
+            anime({
+              targets: el,
+              opacity: [1, 0],
+              duration: 300,
+              easing: 'easeInOutQuad',
+              complete: () => {
+                msgIndex = (msgIndex + 1) % this.loadingMessages.length;
+                el.textContent = this.loadingMessages[msgIndex];
+
+                anime({
+                  targets: el,
+                  opacity: [0, 1],
+                  duration: 300,
+                  easing: 'easeInOutQuad'
+                });
+              }
+            });
+          }, 1800);
+        },
+        hideLoadingOverlay() {
+          clearInterval(this.loadingInterval);
+
+          anime({
+            targets: '#global-loading',
+            opacity: [1, 0],
+            duration: 1000,
+            easing: 'easeInOutQuad',
+            complete: () => {
+              this.isLoading = false;
+            }
+          });
+        },
         async formatNumber(input, decimalPlaces = 0) {
           const num = Number(input);
           if (isNaN(num)) return "";
@@ -229,18 +328,41 @@
             console.log(this.drugNormalize);
             await this.initDough(this.drugNormalize);
         },
+        // async fetchData(){
+        //   let self = this;
+        //   let endpoint = 'https://script.google.com/macros/s/AKfycbxkR7i7izfXFgtiIeQzwCdnOCF1XlnFrAmnqTIUiTftolVvTeQFR40eeeOEvBGaMKDX/exec?cell='
+        //     endpoint += await this.concatCell();
+        //     axios.get(endpoint)
+        //     .then(response => {
+        //         const respData = response.data.data;
+        //         this.setResponseToData(respData);
+        //     })
+        //     .catch(error => {
+        //         console.error('Error:', error);
+        //     });
+        // },
         async fetchData(){
-          let self = this;
           let endpoint = 'https://script.google.com/macros/s/AKfycbxkR7i7izfXFgtiIeQzwCdnOCF1XlnFrAmnqTIUiTftolVvTeQFR40eeeOEvBGaMKDX/exec?cell='
-            endpoint += await this.concatCell();
-            axios.get(endpoint)
-            .then(response => {
-                const respData = response.data.data;
-                this.setResponseToData(respData);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+          endpoint += await this.concatCell();
+
+          try {
+            const response = await axios.get(endpoint);
+            const respData = response.data.data;
+
+            await this.setResponseToData(respData);
+
+            // ให้ดูเหมือนระบบคิด/ประมวลผลก่อนเข้า dashboard
+            setTimeout(() => {
+              this.hideLoadingOverlay();
+            }, 800);
+
+          } catch (error) {
+            console.error('Error:', error);
+
+            setTimeout(() => {
+              this.hideLoadingOverlay();
+            }, 800);
+          }
         },
         async initDough(data=this.drugNormalize){
             comp = {
