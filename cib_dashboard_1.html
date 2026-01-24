@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CIB Dashboard - ระบบรายงานภาพรวม</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Vuetify CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@3.4.0/dist/vuetify.min.css" rel="stylesheet">
+  
+  <!-- Material Design Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.3.67/css/materialdesignicons.min.css" rel="stylesheet">
+  
+  <style>
+    * {
+      font-family: 'Sarabun', sans-serif;
+    }
+    
+    :root {
+      --primary-blue: #1565C0;
+      --primary-yellow: #FFC107;
+      --light-blue: #E3F2FD;
+      --success-green: #4CAF50;
+      --warning-orange: #FF9800;
+      --info-cyan: #00BCD4;
+      --bg-gray: #F5F7FA;
+    }
+    
+    body {
+      background-color: var(--bg-gray);
+      margin: 0;
+      padding: 0;
+    }
+    
+    .sidebar {
+      background: #03172F !important;
+      border-right: 1px solid #1a2942;
+    }
+
+    .sidebar .v-navigation-drawer__content {
+      background: #03172F !important;
+    }
+
+    .sidebar .v-navigation-drawer__scrim {
+      background: #03172F !important;
+    }
+
+    /* Override Vuetify's default top area */
+    .v-navigation-drawer {
+      background: #03172F !important;
+      top: 0 !important;
+      height: 100vh !important;
+      z-index: 1005 !important;
+    }
+
+    .v-navigation-drawer__prepend,
+    .v-navigation-drawer__append {
+      background: #03172F !important;
+    }
+
+    .drawer-header {
+      background: #03172F;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid #1a2942;
+    }
+
+    .logo-wrapper {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .logo-in-drawer {
+      opacity: 1;
+    }
+
+    .logo-in-navbar {
+      opacity: 1;
+    }
+
+    .sidebar .v-list-item {
+      color: white !important;
+    }
+
+    .sidebar .v-list-item .v-icon {
+      color: white !important;
+    }
+
+    .sidebar-item {
+      border-radius: 8px;
+      margin: 4px 8px;
+    }
+
+    .sidebar-item:hover {
+      background-color: rgba(33, 150, 243, 0.1);
+    }
+
+    .sidebar-item.active {
+      background-color: var(--primary-yellow);
+      color: #333 !important;
+    }
+
+    .sidebar-item.active .v-icon {
+      color: #333 !important;
+    }
+    
+    .stat-card {
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      background-color: #FAFBFC;
+      border: 1px solid #E8EAED;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .stat-card.primary {
+      background: linear-gradient(135deg, #1565C0 0%, #1976D2 100%);
+      color: white;
+      border: none;
+    }
+
+    /* General card styling with subtle background */
+    .v-card:not(.stat-card) {
+      background-color: #FAFBFC !important;
+      border: 1px solid #E8EAED !important;
+    }
+
+    .v-card:not(.stat-card):hover {
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
+    }
+
+    .trend-up {
+      color: #4CAF50;
+    }
+    
+    .trend-down {
+      color: #F44336;
+    }
+    
+    .chart-container {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+    }
+    
+    .donut-chart {
+      position: relative;
+      width: 200px;
+      height: 200px;
+    }
+    
+    .donut-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    
+    .section-subtitle {
+      font-size: 13px;
+      color: #666;
+    }
+    
+    .tab-btn {
+      border-radius: 20px;
+      text-transform: none;
+      font-weight: 500;
+    }
+    
+    .tab-btn.active {
+      background-color: var(--primary-blue);
+      color: white;
+    }
+    
+    .vehicle-tab {
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: all 0.2s;
+    }
+    
+    .vehicle-tab:hover {
+      background-color: #E3F2FD;
+    }
+    
+    .vehicle-tab.active {
+      background-color: var(--primary-blue);
+      color: white;
+    }
+    
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .status-ready {
+      background-color: #E8F5E9;
+      color: #2E7D32;
+    }
+    
+    .status-unavailable {
+      background-color: #FFF3E0;
+      color: #E65100;
+    }
+    
+    .status-repair {
+      background-color: #E3F2FD;
+      color: #1565C0;
+    }
+    
+    .progress-bar-custom {
+      height: 8px;
+      border-radius: 4px;
+      background-color: #E0E0E0;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    
+    /* Smooth transitions for layout shift */
+    .v-main {
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .v-app-bar {
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background-color: #03172F !important;
+      z-index: 1004 !important;
+    }
+
+    .v-app-bar .v-toolbar__content {
+      color: white;
+      background-color: #03172F !important;
+    }
+
+    .v-app-bar .v-app-bar-nav-icon {
+      color: white;
+    }
+
+    /* Ensure app bar title area is also dark */
+    .v-toolbar__prepend,
+    .v-toolbar__append {
+      background-color: #03172F !important;
+    }
+
+    /* Notification styles */
+    .notification-item {
+      border-bottom: 1px solid #f0f0f0;
+      transition: background-color 0.2s;
+      cursor: pointer;
+    }
+
+    .notification-item:hover {
+      background-color: #f5f5f5;
+    }
+
+    .notification-item:last-child {
+      border-bottom: none;
+    }
+
+    .notification-unread {
+      background-color: #e3f2fd;
+    }
+
+    .red-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #f44336;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Profile menu styles */
+    .profile-menu-item {
+      transition: background-color 0.2s;
+      cursor: pointer;
+    }
+
+    .profile-menu-item:hover {
+      background-color: #f5f5f5;
+    }
+
+    .cursor-pointer {
+      cursor: pointer;
+    }
+
+    /* Fade transition for logo */
+    .fade-enter-active, .fade-leave-active {
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .fade-enter-from, .fade-leave-to {
+      opacity: 0;
+    }
+
+    .fade-enter-to, .fade-leave-from {
+      opacity: 1;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #a1a1a1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <!-- App Bar -->
+      <v-app-bar elevation="0" color="#03172F" border="b" :style="appBarStyle">
+        <template v-slot:prepend>
+          <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+          <div class="d-flex align-center ml-2">
+            <!-- Logo in navbar - shown when drawer is closed -->
+            <transition name="fade">
+              <v-img
+                v-show="!drawer"
+                :width="48"
+                aspect-ratio="16/9"
+                cover
+                src="https://www.cib.go.th/uploads/Web_Logo_feaa6b77b6.png"
+                class="logo-in-navbar"
+              ></v-img>
+            </transition>
+          </div>
+        </template>
+
+        <v-breadcrumbs :items="breadcrumbs" class="ml-4">
+          <template v-slot:divider>
+            <v-icon color="white">mdi-chevron-right</v-icon>
+          </template>
+          <template v-slot:title="{ item }">
+            <span class="text-white">{{ item.title }}</span>
+          </template>
+        </v-breadcrumbs>
+
+        <v-spacer></v-spacer>
+
+        <!-- Fullscreen Button -->
+        <v-btn icon variant="text" color="white" @click="toggleFullscreen" :title="isFullscreen ? 'ออกจากโหมดเต็มจอ' : 'โหมดเต็มจอ'">
+          <v-icon color="white">{{ isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen' }}</v-icon>
+        </v-btn>
+
+        <!-- Font Size Menu -->
+        <v-menu>
+          <template v-slot:activator="{ props }">
+            <v-btn icon variant="text" color="white" v-bind="props" title="ปรับขนาดตัวอักษร">
+              <v-icon color="white">mdi-format-font</v-icon>
+            </v-btn>
+          </template>
+          <v-list density="compact" width="200">
+            <v-list-subheader>ขนาดตัวอักษร</v-list-subheader>
+            <v-list-item
+              v-for="size in fontSizes"
+              :key="size.value"
+              @click="selectedFontSize = size.value"
+              :class="{ 'bg-blue-lighten-5': selectedFontSize === size.value }"
+            >
+              <template v-slot:prepend>
+                <v-icon v-if="selectedFontSize === size.value" color="primary" size="small">mdi-check</v-icon>
+                <div v-else style="width: 20px;"></div>
+              </template>
+              <v-list-item-title :style="{ fontSize: size.fontSize }">{{ size.label }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
+        <!-- Notifications Menu -->
+        <v-menu max-width="420" :close-on-content-click="false">
+          <template v-slot:activator="{ props }">
+            <v-btn icon variant="text" color="white" v-bind="props" title="การแจ้งเตือน">
+              <v-badge color="error" :content="unreadNotificationsCount" overlap :model-value="unreadNotificationsCount > 0">
+                <v-icon color="white">mdi-bell-outline</v-icon>
+              </v-badge>
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title class="d-flex justify-space-between align-center pa-3 bg-primary">
+              <span class="text-white font-weight-bold">การแจ้งเตือน</span>
+              <v-btn size="x-small" variant="text" color="white" @click="markAllAsRead">
+                อ่านทั้งหมด
+              </v-btn>
+            </v-card-title>
+            <v-divider></v-divider>
+            <v-list max-height="400" style="overflow-y: auto;">
+              <v-list-item
+                v-for="notification in notifications"
+                :key="notification.id"
+                @click="markAsRead(notification.id)"
+                :class="['notification-item', { 'notification-unread': !notification.read }]"
+                class="pa-3"
+              >
+                <template v-slot:prepend>
+                  <v-avatar :color="notification.color" size="40">
+                    <v-icon color="white" size="20">{{ notification.icon }}</v-icon>
+                  </v-avatar>
+                </template>
+                <v-list-item-title class="text-wrap mb-1">
+                  <div class="d-flex align-center justify-space-between">
+                    <span class="font-weight-medium text-body-2">{{ notification.title }}</span>
+                    <span class="red-dot ml-2" v-if="!notification.read"></span>
+                  </div>
+                </v-list-item-title>
+                <v-list-item-subtitle class="text-wrap text-caption">{{ notification.message }}</v-list-item-subtitle>
+                <v-list-item-subtitle class="text-caption text-grey mt-1">{{ notification.time }}</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+            <v-divider></v-divider>
+            <v-card-actions class="justify-center pa-2">
+              <v-btn variant="text" color="primary" size="small" block>ดูการแจ้งเตือนทั้งหมด</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-menu>
+
+        <!-- Profile Menu -->
+        <v-menu>
+          <template v-slot:activator="{ props }">
+            <v-avatar size="36" class="ml-2 cursor-pointer" color="grey-lighten-2" v-bind="props">
+              <v-icon>mdi-account</v-icon>
+            </v-avatar>
+          </template>
+          <v-card min-width="280">
+            <v-list density="compact">
+              <v-list-item class="pa-4">
+                <template v-slot:prepend>
+                  <v-avatar color="primary" size="48">
+                    <v-icon color="white" size="28">mdi-account</v-icon>
+                  </v-avatar>
+                </template>
+                <v-list-item-title class="font-weight-bold">ผู้ใช้งานระบบ</v-list-item-title>
+                <v-list-item-subtitle class="text-caption">admin@cib.go.th</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+            <v-divider></v-divider>
+            <v-list density="compact">
+              <v-list-item
+                v-for="item in profileMenuItems"
+                :key="item.title"
+                @click="item.action"
+                class="profile-menu-item"
+              >
+                <template v-slot:prepend>
+                  <v-icon :color="item.color || 'grey-darken-1'" size="small">{{ item.icon }}</v-icon>
+                </template>
+                <v-list-item-title class="text-body-2">{{ item.title }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-menu>
+      </v-app-bar>
+
+      <!-- Navigation Drawer -->
+      <v-navigation-drawer v-model="drawer" width="240" class="sidebar" :permanent="drawer">
+        <!-- Drawer Header with Logo -->
+        <div class="drawer-header">
+          <!-- Logo in drawer - shown when drawer is open -->
+          <transition name="fade">
+            <v-img
+              v-show="drawer"
+              :width="48"
+              aspect-ratio="16/9"
+              cover
+              src="https://www.cib.go.th/uploads/Web_Logo_feaa6b77b6.png"
+              class="logo-in-drawer"
+            ></v-img>
+          </transition>
+        </div>
+
+        <v-list density="compact" nav>
+          <v-list-item
+            v-for="item in menuItems"
+            :key="item.title"
+            :prepend-icon="item.icon"
+            :title="item.title"
+            :class="['sidebar-item', { 'active': item.active }]"
+            :value="item.title"
+          >
+            <template v-slot:append v-if="item.expandable">
+              <v-icon size="small">mdi-chevron-down</v-icon>
+            </template>
+          </v-list-item>
+        </v-list>
+      </v-navigation-drawer>
+
+      <!-- Main Content -->
+      <v-main class="pa-6" style="background-color: #F5F7FA;" :style="mainContentStyle">
+        <!-- Page Title -->
+        <h1 class="text-h5 font-weight-bold mb-4">รายงานภาพรวมระบบ</h1>
+        
+        <!-- Filter Tabs -->
+        <div class="d-flex align-center mb-6 flex-wrap ga-2">
+          <v-btn-toggle v-model="activeTab" mandatory variant="outlined" divided>
+            <v-btn value="today" size="small">วันนี้</v-btn>
+            <v-btn value="week" size="small">สัปดาห์นี้</v-btn>
+            <v-btn value="month" size="small">เดือนนี้</v-btn>
+            <v-btn value="custom" size="small">กำหนดเอง</v-btn>
+          </v-btn-toggle>
+          
+          <v-spacer></v-spacer>
+          
+          <v-select
+            v-model="selectedUnit"
+            :items="units"
+            label="หน่วยงานทั้งหมด"
+            density="compact"
+            variant="outlined"
+            hide-details
+            style="max-width: 200px;"
+          ></v-select>
+          
+          <!-- Date Range Picker -->
+          <v-menu
+            v-model="datePickerMenu"
+            :close-on-content-click="false"
+            location="bottom"
+          >
+            <template v-slot:activator="{ props }">
+              <v-text-field
+                v-model="dateRangeDisplay"
+                label="ช่วงวันที่"
+                density="compact"
+                variant="outlined"
+                hide-details
+                prepend-inner-icon="mdi-calendar"
+                style="max-width: 220px;"
+                readonly
+                v-bind="props"
+              ></v-text-field>
+            </template>
+            <v-card min-width="350">
+              <v-card-title class="bg-primary text-white pa-3">
+                เลือกช่วงวันที่
+              </v-card-title>
+              <v-card-text class="pa-4">
+                <div class="mb-3">
+                  <p class="text-caption text-grey mb-2">วันที่เริ่มต้น</p>
+                  <v-date-picker
+                    v-model="dateRangeStart"
+                    color="primary"
+                    :max="dateRangeEnd"
+                    hide-header
+                    elevation="0"
+                  ></v-date-picker>
+                </div>
+                <v-divider class="my-3"></v-divider>
+                <div>
+                  <p class="text-caption text-grey mb-2">วันที่สิ้นสุด</p>
+                  <v-date-picker
+                    v-model="dateRangeEnd"
+                    color="primary"
+                    :min="dateRangeStart"
+                    hide-header
+                    elevation="0"
+                  ></v-date-picker>
+                </div>
+              </v-card-text>
+              <v-divider></v-divider>
+              <v-card-actions class="pa-3">
+                <v-spacer></v-spacer>
+                <v-btn variant="text" @click="datePickerMenu = false">ยกเลิก</v-btn>
+                <v-btn color="primary" variant="flat" @click="applyDateRange">ยืนยัน</v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-menu>
+          
+          <v-btn color="primary" variant="flat">
+            ค้นหา
+          </v-btn>
+        </div>
+        
+        <!-- Section: ภาพรวมกำลังพล -->
+        <v-card class="mb-6 pa-6" elevation="1" rounded="lg" style="background-color: #FFFFFF; border: 1px solid #E0E0E0;">
+          <div class="mb-4">
+            <h2 class="section-title">ภาพรวมกำลังพล</h2>
+            <p class="section-subtitle">
+              <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
+              ประจำวันที่ 28 มิถุนายน 2568 ( 00.00 - 23:59 )
+            </p>
+          </div>
+
+          <!-- Stats Cards Row -->
+          <v-row class="mb-0">
+          <!-- Main Stat Card -->
+          <v-col cols="12" md="4">
+            <v-card class="stat-card primary pa-4" elevation="0">
+              <div class="d-flex justify-space-between align-start">
+                <div>
+                  <p class="text-body-2 mb-1" style="opacity: 0.9;">กำลังพลปฏิบัติงานทั้งหมด</p>
+                  <h2 class="text-h3 font-weight-bold">1,112 <span class="text-body-1">คน (89.2%)</span></h2>
+                  <div class="d-flex align-center mt-2">
+                    <v-icon size="small" color="success">mdi-trending-up</v-icon>
+                    <span class="text-body-2 ml-1">+2% (เทียบวันก่อน)</span>
+                  </div>
+                </div>
+                <v-icon size="40" style="opacity: 0.8;">mdi-account-group</v-icon>
+              </div>
+            </v-card>
+          </v-col>
+          
+          <!-- Secondary Stats -->
+          <v-col cols="6" md="2">
+            <v-card class="stat-card pa-4" elevation="0">
+              <div class="d-flex align-center mb-2">
+                <v-icon color="warning" class="mr-2">mdi-emoticon-sick-outline</v-icon>
+                <span class="text-body-2 text-grey">ลาป่วย</span>
+              </div>
+              <h3 class="text-h4 font-weight-bold text-primary">32 <span class="text-body-2 text-grey">คน</span></h3>
+              <div class="d-flex align-center mt-1">
+                <v-icon size="x-small" color="error">mdi-arrow-down</v-icon>
+                <span class="text-caption text-error ml-1">-2% (เทียบวันก่อน)</span>
+              </div>
+            </v-card>
+          </v-col>
+          
+          <v-col cols="6" md="2">
+            <v-card class="stat-card pa-4" elevation="0">
+              <div class="d-flex align-center mb-2">
+                <v-icon color="info" class="mr-2">mdi-palm-tree</v-icon>
+                <span class="text-body-2 text-grey">ลางาน</span>
+              </div>
+              <h3 class="text-h4 font-weight-bold text-primary">12 <span class="text-body-2 text-grey">คน</span></h3>
+              <div class="d-flex align-center mt-1">
+                <v-icon size="x-small" color="error">mdi-arrow-down</v-icon>
+                <span class="text-caption text-error ml-1">-2% (เทียบวันก่อน)</span>
+              </div>
+            </v-card>
+          </v-col>
+          
+          <v-col cols="6" md="2">
+            <v-card class="stat-card pa-4" elevation="0">
+              <div class="d-flex align-center mb-2">
+                <v-icon color="purple" class="mr-2">mdi-school</v-icon>
+                <span class="text-body-2 text-grey">อบรม</span>
+              </div>
+              <h3 class="text-h4 font-weight-bold text-primary">56 <span class="text-body-2 text-grey">คน</span></h3>
+              <div class="d-flex align-center mt-1">
+                <v-icon size="x-small" color="error">mdi-arrow-down</v-icon>
+                <span class="text-caption text-error ml-1">-2% (เทียบวันก่อน)</span>
+              </div>
+            </v-card>
+          </v-col>
+          
+          <v-col cols="6" md="2">
+            <v-card class="stat-card pa-4" elevation="0">
+              <div class="d-flex align-center mb-2">
+                <v-icon color="teal" class="mr-2">mdi-briefcase-check</v-icon>
+                <span class="text-body-2 text-grey">ราชการ</span>
+              </div>
+              <h3 class="text-h4 font-weight-bold text-primary">50 <span class="text-body-2 text-grey">คน</span></h3>
+              <div class="d-flex align-center mt-1">
+                <v-icon size="x-small" color="error">mdi-arrow-down</v-icon>
+                <span class="text-caption text-error ml-1">-2% (เทียบวันก่อน)</span>
+              </div>
+            </v-card>
+          </v-col>
+        </v-row>
+        
+        <!-- Charts Row -->
+        <v-row class="mb-6">
+          <!-- Donut Chart -->
+          <v-col cols="12" md="6">
+            <v-card class="pa-4" elevation="0" rounded="lg">
+              <h3 class="text-subtitle-1 font-weight-bold mb-4">สัดส่วนการมาปฏิบัติงาน</h3>
+              <div class="d-flex align-center">
+                <!-- Donut Chart SVG -->
+                <div class="donut-chart mr-6">
+                  <svg viewBox="0 0 200 200" width="200" height="200">
+                    <!-- Background circle -->
+                    <circle cx="100" cy="100" r="80" fill="none" stroke="#E0E0E0" stroke-width="30"/>
+                    
+                    <!-- ปฏิบัติงาน - 75% (Green) -->
+                    <circle cx="100" cy="100" r="80" fill="none" 
+                      stroke="#4CAF50" stroke-width="30"
+                      stroke-dasharray="377 503"
+                      stroke-dashoffset="0"
+                      transform="rotate(-90 100 100)"/>
+                    
+                    <!-- ลาป่วย - 3% (Yellow) -->
+                    <circle cx="100" cy="100" r="80" fill="none" 
+                      stroke="#FFC107" stroke-width="30"
+                      stroke-dasharray="15 503"
+                      stroke-dashoffset="-377"
+                      transform="rotate(-90 100 100)"/>
+                    
+                    <!-- ลางาน - 2% (Blue) -->
+                    <circle cx="100" cy="100" r="80" fill="none" 
+                      stroke="#2196F3" stroke-width="30"
+                      stroke-dasharray="10 503"
+                      stroke-dashoffset="-392"
+                      transform="rotate(-90 100 100)"/>
+                    
+                    <!-- อบรม - 10% (Grey) -->
+                    <circle cx="100" cy="100" r="80" fill="none" 
+                      stroke="#9E9E9E" stroke-width="30"
+                      stroke-dasharray="50 503"
+                      stroke-dashoffset="-402"
+                      transform="rotate(-90 100 100)"/>
+                    
+                    <!-- ราชการ - 10% (Light Grey) -->
+                    <circle cx="100" cy="100" r="80" fill="none" 
+                      stroke="#BDBDBD" stroke-width="30"
+                      stroke-dasharray="50 503"
+                      stroke-dashoffset="-452"
+                      transform="rotate(-90 100 100)"/>
+                  </svg>
+                  <div class="donut-center">
+                    <p class="text-caption text-grey">ทั้งหมด</p>
+                    <h3 class="text-h5 font-weight-bold">1,200</h3>
+                  </div>
+                </div>
+                
+                <!-- Legend -->
+                <div>
+                  <div class="legend-item">
+                    <span class="legend-dot" style="background-color: #4CAF50;"></span>
+                    <span class="text-body-2">ปฏิบัติงาน</span>
+                    <span class="text-body-2 font-weight-bold ml-auto" style="min-width: 50px;">75.0%</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-dot" style="background-color: #FFC107;"></span>
+                    <span class="text-body-2">ลาป่วย</span>
+                    <span class="text-body-2 font-weight-bold ml-auto" style="min-width: 50px;">3.0%</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-dot" style="background-color: #2196F3;"></span>
+                    <span class="text-body-2">ลางาน</span>
+                    <span class="text-body-2 font-weight-bold ml-auto" style="min-width: 50px;">2.0%</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-dot" style="background-color: #9E9E9E;"></span>
+                    <span class="text-body-2">อบรม</span>
+                    <span class="text-body-2 font-weight-bold ml-auto" style="min-width: 50px;">10.0%</span>
+                  </div>
+                  <div class="legend-item">
+                    <span class="legend-dot" style="background-color: #BDBDBD;"></span>
+                    <span class="text-body-2">ราชการ</span>
+                    <span class="text-body-2 font-weight-bold ml-auto" style="min-width: 50px;">10.0%</span>
+                  </div>
+                </div>
+              </div>
+            </v-card>
+          </v-col>
+          
+          <!-- Position Stats -->
+          <v-col cols="12" md="6">
+            <v-card class="pa-4" elevation="0" rounded="lg">
+              <div class="d-flex justify-space-between align-start mb-4">
+                <div>
+                  <h3 class="text-subtitle-1 font-weight-bold">ตำแหน่งงานทั้งหมด</h3>
+                  <h2 class="text-h3 font-weight-bold text-primary mt-2">4,345 <span class="text-body-1 text-grey">อัตรา</span></h2>
+                  <div class="d-flex align-center mt-1">
+                    <v-icon size="x-small" color="error">mdi-arrow-down</v-icon>
+                    <span class="text-caption text-error ml-1">-68% (เทียบวันก่อน)</span>
+                  </div>
+                </div>
+                <v-icon color="grey-lighten-1">mdi-account-group-outline</v-icon>
+              </div>
+              
+              <v-divider class="my-4"></v-divider>
+              
+              <v-row>
+                <v-col cols="6">
+                  <p class="text-body-2 text-grey mb-1">ครองตำแหน่ง</p>
+                  <h3 class="text-h4 font-weight-bold">4,000 <span class="text-body-2 text-grey">อัตรา</span></h3>
+                  <p class="text-h5 font-weight-bold text-success">68%</p>
+                  <div class="d-flex align-center">
+                    <v-icon size="x-small" color="success">mdi-arrow-up</v-icon>
+                    <span class="text-caption text-success ml-1">+12% (เทียบวันก่อน)</span>
+                  </div>
+                </v-col>
+                <v-col cols="6">
+                  <p class="text-body-2 text-grey mb-1">ตำแหน่งว่าง</p>
+                  <h3 class="text-h4 font-weight-bold">345 <span class="text-body-2 text-grey">อัตรา</span></h3>
+                  <p class="text-h5 font-weight-bold text-error">32%</p>
+                  <div class="d-flex align-center">
+                    <v-icon size="x-small" color="error">mdi-arrow-down</v-icon>
+                    <span class="text-caption text-error ml-1">-22% (เทียบปีก่อน)</span>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card>
+          </v-col>
+        </v-row>
+        </v-card>
+
+        <!-- Section: ภาพรวมพัสดุ -->
+        <v-card class="mb-6 pa-6" elevation="1" rounded="lg" style="background-color: #FFFFFF; border: 1px solid #E0E0E0;">
+          <div class="mb-4">
+            <h2 class="section-title">ภาพรวมพัสดุ</h2>
+            <p class="section-subtitle">
+              <v-icon size="small" class="mr-1">mdi-calendar</v-icon>
+              ประจำวันที่ 28 มิถุนายน 2568 ( 00.00 - 23:59 )
+            </p>
+          </div>
+
+          <v-row>
+          <!-- Total Items & Vehicle Stats -->
+          <v-col cols="12" md="6">
+            <v-card class="pa-4 mb-4" elevation="0" rounded="lg">
+              <div class="d-flex justify-space-between align-center">
+                <div>
+                  <p class="text-body-2 text-grey">จำนวนพัสดุทั้งหมด</p>
+                  <h2 class="text-h3 font-weight-bold text-primary">8,816 <span class="text-body-1 text-grey">ชิ้น</span></h2>
+                  <div class="d-flex align-center mt-1">
+                    <v-icon size="x-small" color="success">mdi-arrow-up</v-icon>
+                    <span class="text-caption text-success ml-1">+2% (เทียบปีก่อน)</span>
+                  </div>
+                </div>
+                <!-- Mini Bar Chart -->
+                <div class="d-flex align-end ga-1" style="height: 80px;">
+                  <div style="width: 20px; height: 40%; background: #90CAF9; border-radius: 4px;"></div>
+                  <div style="width: 20px; height: 60%; background: #64B5F6; border-radius: 4px;"></div>
+                  <div style="width: 20px; height: 80%; background: #42A5F5; border-radius: 4px;"></div>
+                  <div style="width: 20px; height: 100%; background: #1E88E5; border-radius: 4px;"></div>
+                  <div style="width: 20px; height: 70%; background: #1976D2; border-radius: 4px;"></div>
+                </div>
+              </div>
+            </v-card>
+            
+            <!-- Vehicle Categories -->
+            <v-card class="pa-4" elevation="0" rounded="lg">
+              <!-- Category Tabs -->
+              <div class="d-flex ga-2 mb-4 flex-wrap">
+                <v-chip
+                  v-for="cat in vehicleCategories"
+                  :key="cat.name"
+                  :color="activeVehicleTab === cat.name ? 'primary' : undefined"
+                  :variant="activeVehicleTab === cat.name ? 'flat' : 'outlined'"
+                  @click="activeVehicleTab = cat.name"
+                  class="cursor-pointer"
+                >
+                  {{ cat.label }}
+                </v-chip>
+              </div>
+              
+              <div class="d-flex justify-space-between align-center mb-4">
+                <div>
+                  <p class="text-body-2 text-grey">จำนวนรถยนต์ทั้งหมด</p>
+                  <h3 class="text-h4 font-weight-bold">2,316 <span class="text-body-2 text-grey">คัน</span></h3>
+                  <div class="d-flex align-center mt-1">
+                    <v-icon size="x-small" color="error">mdi-arrow-down</v-icon>
+                    <span class="text-caption text-error ml-1">-68% (เทียบวันก่อน)</span>
+                  </div>
+                </div>
+                <v-icon size="48" color="grey-lighten-1">mdi-car</v-icon>
+              </div>
+              
+              <v-row>
+                <v-col cols="4">
+                  <div class="text-center pa-2" style="background: #E8F5E9; border-radius: 8px;">
+                    <p class="text-caption text-grey">พร้อมใช้งาน</p>
+                    <h4 class="text-h5 font-weight-bold">300 <span class="text-caption">คัน</span></h4>
+                    <p class="text-subtitle-2 font-weight-bold text-success">16%</p>
+                    <div class="d-flex align-center justify-center">
+                      <v-icon size="x-small" color="success">mdi-arrow-up</v-icon>
+                      <span class="text-caption text-success">+12%</span>
+                    </div>
+                  </div>
+                </v-col>
+                <v-col cols="4">
+                  <div class="text-center pa-2" style="background: #FFF3E0; border-radius: 8px;">
+                    <p class="text-caption text-grey">ไม่ว่าง</p>
+                    <h4 class="text-h5 font-weight-bold">2,000 <span class="text-caption">ที่นั่ง</span></h4>
+                    <p class="text-subtitle-2 font-weight-bold text-warning">80%</p>
+                    <div class="d-flex align-center justify-center">
+                      <v-icon size="x-small" color="error">mdi-arrow-down</v-icon>
+                      <span class="text-caption text-error">-22%</span>
+                    </div>
+                  </div>
+                </v-col>
+                <v-col cols="4">
+                  <div class="text-center pa-2" style="background: #E3F2FD; border-radius: 8px;">
+                    <p class="text-caption text-grey">ซ่อม</p>
+                    <h4 class="text-h5 font-weight-bold">16 <span class="text-caption">คัน</span></h4>
+                    <p class="text-subtitle-2 font-weight-bold text-info">4%</p>
+                    <div class="d-flex align-center justify-center">
+                      <v-icon size="x-small" color="error">mdi-arrow-down</v-icon>
+                      <span class="text-caption text-error">-22%</span>
+                    </div>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card>
+          </v-col>
+          
+          <!-- Equipment Bar Chart -->
+          <v-col cols="12" md="6">
+            <v-card class="pa-4" elevation="0" rounded="lg" style="height: 100%;">
+              <div class="d-flex align-center mb-4">
+                <v-icon color="primary" class="mr-2">mdi-chart-bar</v-icon>
+                <div>
+                  <h3 class="text-subtitle-1 font-weight-bold">สถิติพัสดุจำแนก : ตามประเภทอุปกรณ์</h3>
+                  <p class="text-caption text-grey">แสดงจำนวนพัสดุ จำแนกตามประเภทอุปกรณ์</p>
+                </div>
+              </div>
+              
+              <!-- Stacked Bar Chart -->
+              <div class="d-flex align-end justify-space-around" style="height: 280px; padding-bottom: 30px; position: relative;">
+                <!-- Y-axis labels -->
+                <div style="position: absolute; left: 0; top: 0; bottom: 30px; width: 40px; display: flex; flex-direction: column; justify-content: space-between;">
+                  <span class="text-caption text-grey">4000</span>
+                  <span class="text-caption text-grey">3000</span>
+                  <span class="text-caption text-grey">2000</span>
+                  <span class="text-caption text-grey">1000</span>
+                  <span class="text-caption text-grey">0</span>
+                </div>
+                
+                <!-- Bars -->
+                <div class="text-center" style="margin-left: 50px;">
+                  <div class="d-flex flex-column-reverse" style="height: 220px;">
+                    <div style="width: 60px; height: 30%; background: #4CAF50; border-radius: 0;"></div>
+                    <div style="width: 60px; height: 20%; background: #FFC107;"></div>
+                    <div style="width: 60px; height: 8%; background: #2196F3; border-radius: 4px 4px 0 0;"></div>
+                  </div>
+                  <p class="text-caption mt-2">2,316</p>
+                  <p class="text-caption text-grey">รถยนต์</p>
+                </div>
+                
+                <div class="text-center">
+                  <div class="d-flex flex-column-reverse" style="height: 220px;">
+                    <div style="width: 60px; height: 40%; background: #4CAF50; border-radius: 0;"></div>
+                    <div style="width: 60px; height: 25%; background: #FFC107;"></div>
+                    <div style="width: 60px; height: 10%; background: #2196F3; border-radius: 4px 4px 0 0;"></div>
+                  </div>
+                  <p class="text-caption mt-2">3,000</p>
+                  <p class="text-caption text-grey">ปืน</p>
+                </div>
+                
+                <div class="text-center">
+                  <div class="d-flex flex-column-reverse" style="height: 220px;">
+                    <div style="width: 60px; height: 25%; background: #4CAF50; border-radius: 0;"></div>
+                    <div style="width: 60px; height: 18%; background: #FFC107;"></div>
+                    <div style="width: 60px; height: 7%; background: #2196F3; border-radius: 4px 4px 0 0;"></div>
+                  </div>
+                  <p class="text-caption mt-2">2,000</p>
+                  <p class="text-caption text-grey">เสื้อเกราะ</p>
+                </div>
+                
+                <div class="text-center">
+                  <div class="d-flex flex-column-reverse" style="height: 220px;">
+                    <div style="width: 60px; height: 12%; background: #4CAF50; border-radius: 0;"></div>
+                    <div style="width: 60px; height: 10%; background: #FFC107;"></div>
+                    <div style="width: 60px; height: 3%; background: #2196F3; border-radius: 4px 4px 0 0;"></div>
+                  </div>
+                  <p class="text-caption mt-2">1,000</p>
+                  <p class="text-caption text-grey">เรือ</p>
+                </div>
+                
+                <div class="text-center">
+                  <div class="d-flex flex-column-reverse" style="height: 220px;">
+                    <div style="width: 60px; height: 6%; background: #4CAF50; border-radius: 0;"></div>
+                    <div style="width: 60px; height: 4%; background: #FFC107;"></div>
+                    <div style="width: 60px; height: 2.5%; background: #2196F3; border-radius: 4px 4px 0 0;"></div>
+                  </div>
+                  <p class="text-caption mt-2">500</p>
+                  <p class="text-caption text-grey">อื่นๆ</p>
+                </div>
+              </div>
+              
+              <!-- Legend -->
+              <div class="d-flex justify-center ga-4 mt-4">
+                <div class="d-flex align-center">
+                  <span class="legend-dot" style="background-color: #4CAF50;"></span>
+                  <span class="text-caption">พร้อมใช้งาน</span>
+                </div>
+                <div class="d-flex align-center">
+                  <span class="legend-dot" style="background-color: #FFC107;"></span>
+                  <span class="text-caption">ไม่ว่าง</span>
+                </div>
+                <div class="d-flex align-center">
+                  <span class="legend-dot" style="background-color: #2196F3;"></span>
+                  <span class="text-caption">ซ่อม</span>
+                </div>
+              </div>
+            </v-card>
+          </v-col>
+        </v-row>
+        </v-card>
+      </v-main>
+    </v-app>
+  </div>
+  
+  <!-- Vue 3 -->
+  <script src="https://unpkg.com/vue@3.3.8/dist/vue.global.prod.js"></script>
+  
+  <!-- Vuetify -->
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@3.4.0/dist/vuetify.min.js"></script>
+  
+  <script>
+    const { createApp, ref } = Vue;
+    const { createVuetify } = Vuetify;
+    
+    const vuetify = createVuetify({
+      theme: {
+        defaultTheme: 'light',
+        themes: {
+          light: {
+            colors: {
+              primary: '#1565C0',
+              secondary: '#FFC107',
+              success: '#4CAF50',
+              warning: '#FF9800',
+              error: '#F44336',
+              info: '#00BCD4',
+            }
+          }
+        }
+      }
+    });
+    
+    const app = createApp({
+      setup() {
+        const drawer = ref(false);
+        const activeTab = ref('today');
+        const selectedUnit = ref('หน่วยงานทั้งหมด');
+        const activeVehicleTab = ref('car');
+
+        // Date Picker
+        const datePickerMenu = ref(false);
+        const dateRangeStart = ref(new Date(2025, 5, 28)); // June 28, 2025
+        const dateRangeEnd = ref(new Date(2025, 5, 28));
+        const dateRangeDisplay = ref('28 มิ.ย. 68 - 28 มิ.ย. 68');
+
+        // Fullscreen
+        const isFullscreen = ref(false);
+
+        // Font Size
+        const selectedFontSize = ref('md');
+        const fontSizes = ref([
+          { value: 'xs', label: 'เล็กมาก (XS)', fontSize: '12px' },
+          { value: 'sm', label: 'เล็ก (S)', fontSize: '14px' },
+          { value: 'md', label: 'ปกติ (M)', fontSize: '16px' },
+          { value: 'lg', label: 'ใหญ่ (L)', fontSize: '18px' },
+          { value: 'xl', label: 'ใหญ่มาก (XL)', fontSize: '20px' },
+        ]);
+
+        // Notifications
+        const notifications = ref([
+          {
+            id: 1,
+            title: 'การอนุมัติคำขอลา',
+            message: 'คำขอลาป่วยของ พ.ต.ท.สมชาย ได้รับการอนุมัติแล้ว',
+            time: '5 นาทีที่แล้ว',
+            icon: 'mdi-check-circle',
+            color: 'success',
+            read: false
+          },
+          {
+            id: 2,
+            title: 'พัสดุใกล้หมดอายุ',
+            message: 'มีพัสดุจำนวน 12 รายการที่จะหมดอายุในเดือนนี้',
+            time: '1 ชั่วโมงที่แล้ว',
+            icon: 'mdi-alert',
+            color: 'warning',
+            read: false
+          },
+          {
+            id: 3,
+            title: 'รายงานประจำวันสำเร็จ',
+            message: 'ระบบได้สร้างรายงานประจำวันเรียบร้อยแล้ว',
+            time: '2 ชั่วโมงที่แล้ว',
+            icon: 'mdi-file-document',
+            color: 'info',
+            read: true
+          },
+          {
+            id: 4,
+            title: 'การบำรุงรักษารถยนต์',
+            message: 'รถยนต์หมายเลข 123-456 ครบกำหนดตรวจสภาพ',
+            time: 'เมื่อวาน',
+            icon: 'mdi-car-wrench',
+            color: 'error',
+            read: false
+          }
+        ]);
+
+        // Profile Menu
+        const profileMenuItems = ref([
+          { title: 'ข้อมูลส่วนตัว', icon: 'mdi-account-circle', action: () => alert('ข้อมูลส่วนตัว') },
+          { title: 'ตั้งค่าบัญชี', icon: 'mdi-cog', action: () => alert('ตั้งค่าบัญชี') },
+          { title: 'ความช่วยเหลือ', icon: 'mdi-help-circle', action: () => alert('ความช่วยเหลือ') },
+          { title: 'เกี่ยวกับระบบ', icon: 'mdi-information', action: () => alert('เกี่ยวกับระบบ') },
+          { title: 'ออกจากระบบ', icon: 'mdi-logout', color: 'error', action: () => confirm('คุณต้องการออกจากระบบหรือไม่?') },
+        ]);
+
+        const breadcrumbs = ref([
+          { title: 'รายงาน', disabled: false },
+          { title: 'รายงานภาพรวม', disabled: true },
+        ]);
+
+        const menuItems = ref([
+          { title: 'รายงานภาพรวม', icon: 'mdi-view-dashboard', active: true },
+          { title: 'กำลังพล', icon: 'mdi-account-group', expandable: true },
+          { title: 'สอบสวน', icon: 'mdi-file-document-edit' },
+          { title: 'สืบสวน', icon: 'mdi-magnify' },
+          { title: 'พัสดุ', icon: 'mdi-package-variant', expandable: true },
+          { title: 'งบประมาณ', icon: 'mdi-currency-usd', expandable: true },
+        ]);
+
+        const units = ref([
+          'หน่วยงานทั้งหมด',
+          'กองบังคับการ 1',
+          'กองบังคับการ 2',
+          'กองบังคับการ 3',
+        ]);
+
+        const vehicleCategories = ref([
+          { name: 'car', label: 'รถยนต์' },
+          { name: 'gun', label: 'ปืน' },
+          { name: 'armor', label: 'เสื้อเกราะ' },
+          { name: 'boat', label: 'เรือ' },
+          { name: 'other', label: 'อื่นๆ' },
+        ]);
+
+        // Convert Date to Buddhist Era (BE) format
+        const toBuddhistEra = (date) => {
+          const d = new Date(date);
+          const thaiMonths = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.',
+                             'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+          const day = d.getDate();
+          const month = thaiMonths[d.getMonth()];
+          const year = (d.getFullYear() + 543).toString().slice(-2);
+          return `${day} ${month} ${year}`;
+        };
+
+        // Apply date range
+        const applyDateRange = () => {
+          const startStr = toBuddhistEra(dateRangeStart.value);
+          const endStr = toBuddhistEra(dateRangeEnd.value);
+          dateRangeDisplay.value = `${startStr} - ${endStr}`;
+          datePickerMenu.value = false;
+        };
+
+        // Toggle fullscreen
+        const toggleFullscreen = () => {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+            isFullscreen.value = true;
+          } else {
+            if (document.exitFullscreen) {
+              document.exitFullscreen();
+              isFullscreen.value = false;
+            }
+          }
+        };
+
+        // Listen for fullscreen changes
+        document.addEventListener('fullscreenchange', () => {
+          isFullscreen.value = !!document.fullscreenElement;
+        });
+
+        // Notification functions
+        const unreadNotificationsCount = Vue.computed(() => {
+          return notifications.value.filter(n => !n.read).length;
+        });
+
+        const markAsRead = (id) => {
+          const notification = notifications.value.find(n => n.id === id);
+          if (notification) {
+            notification.read = true;
+          }
+        };
+
+        const markAllAsRead = () => {
+          notifications.value.forEach(n => n.read = true);
+        };
+
+        // Computed property for main content margin
+        const mainContentStyle = Vue.computed(() => {
+          return {
+            marginLeft: drawer.value ? '240px' : '0px',
+            transition: 'margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+          };
+        });
+
+        // Computed property for app bar position
+        const appBarStyle = Vue.computed(() => {
+          return {
+            left: drawer.value ? '240px' : '0px',
+            width: drawer.value ? 'calc(100% - 240px)' : '100%',
+            transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+          };
+        });
+
+        return {
+          drawer,
+          activeTab,
+          selectedUnit,
+          activeVehicleTab,
+          breadcrumbs,
+          menuItems,
+          units,
+          vehicleCategories,
+          mainContentStyle,
+          appBarStyle,
+          // Date picker
+          datePickerMenu,
+          dateRangeStart,
+          dateRangeEnd,
+          dateRangeDisplay,
+          applyDateRange,
+          // Fullscreen
+          isFullscreen,
+          toggleFullscreen,
+          // Font size
+          selectedFontSize,
+          fontSizes,
+          // Notifications
+          notifications,
+          unreadNotificationsCount,
+          markAsRead,
+          markAllAsRead,
+          // Profile menu
+          profileMenuItems,
+        };
+      }
+    });
+    
+    app.use(vuetify);
+    app.mount('#app');
+  </script>
+</body>
+</html>
